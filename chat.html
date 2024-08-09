@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Chat App</title>
+    <style>
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e6eaea;
+}
+
+.chat-container {
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    max-height: 600px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.messages {
+    flex: 1;
+    padding: 2%;
+    overflow-y: auto;
+    border-bottom: 1px solid #ccc;
+    background-color: #f9f9f9;
+}
+
+.input-container {
+    display: flex;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-top: 1px solid #ccc;
+}
+
+.input-container input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+    outline: none;
+}
+
+.input-container button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.input-container button:hover {
+    background-color: #0056b3;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 20px;
+    max-width: 75%;
+    display: inline-block;
+    word-wrap: break-word;
+}
+
+.message .name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.message.sent {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+}
+
+.message.received {
+    background-color: #e5e5ea;
+    color: #000;
+    align-self: flex-start;
+}
+
+.message.sent .name,
+.message.received .name {
+    color: #555;
+}
+
+.messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.messages::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    border-radius: 4px;
+}
+
+    </style>
+</head>
+<body>
+    <div id="app" class="chat-container">
+        <div class="messages" id="messages">
+            <div v-for="(msg, index) in messages" :key="index" class="message" :class="msg.type">
+                <div class="name">{{ msg.sender }}</div>
+                <div class="text">{{ msg.content }}</div>
+            </div>
+        </div>
+        <div class="input-container">
+            <input v-model="newMessage" type="text" id="messageInput" placeholder="Type a message">
+            <button @click="sendMessage">Send</button>
+        </div>
+        <div class="input-container">
+            <input v-model="peerIdToConnect" type="text" placeholder="Peer ID to connect">
+            <button @click="connectToPeer">Connect</button>
+        </div>
+    </div>
+
+    <!-- Vue.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <!-- PeerJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/peerjs/dist/peerjs.min.js"></script>
+    <script>
+        const peerName=window.prompt("Please enter your name");
+        new Vue({
+            el: '#app',
+            data: {
+                peer: null,
+                conn: null,
+                messages: [],
+                newMessage: '',
+                peerIdToConnect: '',
+                myPeerId: ''
+            },
+            methods: {
+                initPeer() {
+                    this.peer = new Peer(); // Create a Peer object
+
+                    this.peer.on('open', (id) => {
+                        this.myPeerId = id;
+                        console.log('My peer ID is: ' + id);
+                        alert('Your Peer ID: ' + id); // Alert the user of their Peer ID
+                    });
+
+                    // Handling incoming connections
+                    this.peer.on('connection', (conn) => {
+                        this.conn = conn;
+                        this.setupConnection();
+                    });
+                },
+                connectToPeer() {
+                    this.conn = this.peer.connect(this.peerIdToConnect); // Connect to another peer
+                    this.conn.on('open', () => {
+                        window.alert('Connected to ' + this.peerIdToConnect);
+                        this.setupConnection();
+                    });
+                },
+                setupConnection() {
+                    this.conn.on('data', (data) => {
+                        console.log('Received:', data);
+                        this.messages.push({ sender: peerName, content: data, type: 'received' });
+                    });
+                },
+                sendMessage() {
+                    if (!this.conn || !this.conn.open) {
+                        alert('You are not connected to any peer.');
+                        return;
+                    }
+
+                    const message = this.newMessage.trim();
+                    if (message === '') return;
+
+                    this.messages.push({ sender: 'You', content: message, type: 'sent' });
+                    this.conn.send(message);
+
+                    this.newMessage = '';
+                }
+            },
+            created() {
+                this.initPeer();
+            }
+        });
+    </script>
+</body>
+</html>
