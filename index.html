@@ -3,106 +3,523 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="inst.png">
-    <title>Instruction</title>
+    <link rel="icon" href="icon.png">
+    <title>Real Chat App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        *{
+        body, html {
+            height: 100%;
             margin: 0;
-        }
-        body{
-            text-align: center;
+            font-family: 'Arial', sans-serif;
+            display: flex;
             justify-content: center;
-            margin: 0;
+            align-items: center;
+            background-color: #e6eaea;
         }
-        .but{
-            background-color: cyan;
-            color: black;
-            border: none;
-            border-radius: 15px;
-            padding: 1%;
-            font-size: 2em;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 0;
-            margin-left: 90%;
-            position: relative;
-            margin-top: 1%;
-            box-shadow: 1px 8px 10px black;
-            transition: 0.2s;
+
+        .chat-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            max-height: 600px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .but:hover{
-            background-color: rgb(0, 159, 159);
-            color: rgb(49, 49, 49);
-            box-shadow: 1px 14px 18px black;
+
+        .messages {
+            flex: 1;
+            padding: 2%;
+            overflow-y: auto;
+            border-bottom: 1px solid #ccc;
+            background-color: #f9f9f9;
         }
-        .but:active{
-            background-color: rgb(0, 73, 73);
-            color: rgb(139, 139, 139);
-            box-shadow: 1px 10px 18px black;
+
+        .input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-top: 1px solid #ccc;
         }
-        .H1{
-            font-size: 6em;
+
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            outline: none;
         }
-        .H2{
-            font-size: 4em;
-            color: red;
-        }
-        .PP{
-            font-size: 2em;
-        }
-        .img1{
-            height: 10%;
-            width: 20%;
-        }
-        .wait{
-            color: blue;
-            font-weight: bolder;
-        }
-        .start{
-            background-color: darkblue;
+
+        .input-container button {
+            padding: 10px;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 15px;
-            font-size: 2em;
-            padding: 1% 30%;
+            border-radius: 50%;
             cursor: pointer;
-            transition: 0.2s;
+            transition: background-color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .start:hover{
-            background-color: rgb(0, 0, 86);
+
+        .input-container button:hover {
+            background-color: #0056b3;
         }
-        .start:active{
-            background-color: rgb(0, 0, 0);
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 75%;
+            display: inline-block;
+            word-wrap: break-word;
+            position: relative;
         }
-        .last{
-            background-color: gray;
+
+        .message .name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .message .status {
+            font-size: 12px;
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            color: #555;
+        }
+
+        .message.sent {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .message.received {
+            background-color: #e5e5ea;
+            color: #000;
+            align-self: flex-start;
+        }
+
+        .message.sent .name,
+        .message.received .name {
+            color: #555;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background-color: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .recording-indicator {
+            display: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #ff0000;
+            animation: pulse 1s infinite;
+        }
+
+        .recording-indicator.active {
+            display: block;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .name-change-container {
+            display: flex;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-top: 1px solid #ccc;
+        }
+
+        .name-change-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #007bff;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar button {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
             width: 100%;
-            height: 40%;
-            max-height: 60%;
-            font-size: 2em;
+            text-align: center;
+        }
+
+        .sidebar button:hover {
+            background-color: #004494;
+        }
+        @media (max-width: 768px) {
+            .chat-container {
+                margin-left: 0;
+                max-width: 100%;
+            }
+
+            .sidebar {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <a href="chat.html"><button class="but">Skip</button></a>
-    <h1 class="H1">How to use the site?</h1><br>
-    <h2 class="H2">Please read the instruction, it is important!</h2><br><br><hr><br>
-    <p class="PP">In the beginnig you will be prompted to Enter your name so enter your name. 
-        and press "OK".
-    </p><br>
-    <img src="1.png" alt="" class="img1"><br><br><hr><br>
-    <p class="PP">After <span class="wait">some time</span> you will see an alert that says "Your peer id:" copy that key and send it to whome you want to connect with.</p><br>
-    <img src="2.png" alt="" class="img1"><br><br><hr><br>
-    <p class="PP">If you received any key from others Enter that in the Feild: "Peer ID to connect" and press "Connect"</p><br>
-    <img src="3.png" alt="" class="img1"><br><br><hr><br>
-    <p class="PP">If your Connection was successful you will be prompted that "Connected to 'Peer ID' "</p><br>
-    <img src="4.png" alt="" class="img1">
-    <p class="PP">And now you can chat</p><br><br><hr><br>
-    <a href="chat.html"><button class="start">Get Started</button></a><br><br>
 
-    <div class="last"><br><br>
-        <h3>Have a quistion?</h3><br>
-        <h2>Contact me on WhatsApp: +93777386727</h2><br><br>
-    </div>
+    <div id="app" class="chat-container">
+        <button style="height: 7%; font-size: 30px; cursor: pointer; padding: 1% 0 2% 0; background-color: red;" @click="clear"><i class="fas fa-broom"></i>Clear messages</button>
+        <div class="messages" id="messages">
+            <div v-for="(msg, index) in messages" :key="index" class="message" :class="msg.type">
+                <div class="name">{{ msg.sender }}</div>
+                <div class="text">{{ msg.content }}</div>
+                <div class="status">
+
+                    <span v-if="msg.type === 'sent'">
+                        <i :class="msg.status === 'seen' ? 'fas fa-check-double' : 'fas fa-check'"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="input-container">
+        <div class="recording-indicator" :class="{ 'active': isRecording }"></div>
+            <button @click="toggleRecording">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <input v-model="newMessage" type="text" id="messageInput" placeholder="Type a message"><button @click="more" class="fas fa-link"></button>
+            <button @click="sendMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+        <div class="input-container">
+            <input v-model="peerIdToConnect" type="text" placeholder="Peer ID to connect">
+            <button @click="connectToPeer">
+                <i class="fas fa-user-plus"></i>
+            </button>
+            <div class="input-container">
+                <button @click="sendAudioMessage" v-if="audioBlob">
+                    <i class="fas fa-share"></i> Send Audio
+                </button>
+            </div>
+        </div>
+        <div id="sidebar">
+            <div class="input-container">
+                <button @click="startVoiceChat" style="height: 30%; padding: 10%; border-radius: 0;">
+                    <i class="fas fa-phone-alt"></i>Start voice call
+                </button>
+            </div>
+            <div class="input-container">
+                <button @click="endVoiceCall" style="height: 30%; padding: 10%; border-radius: 0;">
+                    <i class="fas fa-phone-slash"></i>End Voice call
+                </button>
+            </div>
+            <div class="input-container">
+            <button @click="ok" style=" height: 10%; border-radius: 0;" title="close"><i class="fas fa-arrow-up" ></i>Back</button>
+        </div>
+        <div class="input-container">
+            <button @click="copy" style="padding: 30%; height: 20%; border-radius: 0;" title="copy"><i class="fas fa-copy" ></i>Copy Peer ID</button>
+        </div>
+            <div id="app">
+                <div v-for="message in messages" :key="message.content" :class="message.type">
+                    <div v-if="message.type === 'received'" v-html="message.content"></div>
+                    <div v-if="message.type === 'sent'">{{ message.content }}</div>
+                </div>
+            </div>
+
+        </div>
+        </div>
+    <!-- Vue.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <!-- PeerJS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/peerjs/dist/peerjs.min.js"></script>
+    <script>
+         
+        let sd = document.getElementById("sidebar").style.display = 'none';
+        new Vue({
+    el: '#app',
+    data: {
+        peer: null,
+        conn: null,
+        call: null,
+        messages: [],
+        newMessage: '',
+        peerIdToConnect: '',
+        myPeerId: '',
+        audioContext: null,
+        mediaRecorder: null,
+        audioChunks: [],
+        audioBlob: null,
+        isRecording: false,
+        peerName: localStorage.getItem('peerName') || '',
+        newName: ''
+    },
+    methods: {
+        initPeer() {
+            this.peer = new Peer();
+
+            this.peer.on('open', (id) => {
+                this.myPeerId = id;
+                alert('Your Peer ID is: ' + id);
+                console.log('My peer ID is: ' + id);
+                if (!this.peerName) this.promptForName();
+            });
+
+            this.peer.on('connection', (conn) => {
+                this.conn = conn;
+                this.setupConnection();
+            });
+
+            this.peer.on('call', (call) => {
+                this.call = call;
+                navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+                    .then((stream) => {
+                        call.answer(stream);
+                        call.on('stream', (remoteStream) => {
+                            this.playAudio(remoteStream);
+                        });
+                    });
+            });
+        },
+        more(){
+            document.getElementById("sidebar").style.display = 'flex';
+            document.getElementById("sidebar").style.height = '100%';
+        },
+        ok(){
+            document.getElementById("sidebar").style.display = 'none';
+        },
+        connectToPeer() {
+            this.conn = this.peer.connect(this.peerIdToConnect);
+            this.conn.on('open', () => {
+                window.alert('Connected to ' + this.peerIdToConnect);
+                this.setupConnection();
+            });
+        },
+        clear(){
+            let clear;
+            this.messages = [];
+            this.saveMessages();
+            if(clear){
+                alert("error clearing!")
+
+            }
+            else{
+            alert("Clearing!")
+            }
+            alert("Cleared successfully!")
+        },
+        setupConnection() {
+            this.conn.on('data', (data) => {
+                console.log('Received data:', data); // Debug statement
+                if (data.type === 'text') {
+                    this.messages.push({ sender: data.sender, content: data.content, type: 'received', status: 'delivered' });
+                    this.saveMessages();
+                } else if (data.type === 'audio') {
+                    let blob;
+                    if (data.content instanceof Blob) {
+                        blob = data.content;
+                    } else if (data.content instanceof Uint8Array) {
+                        blob = new Blob([data.content], { type: 'audio/wav' }); // Use appropriate MIME type
+                    } else {
+                        console.error('Received data is not a valid Blob or Uint8Array');
+                        return;
+                    }
+
+                    // Create a URL for the Blob
+                    const audioUrl = URL.createObjectURL(blob);
+
+                    // Create an <audio> element and set its properties
+                    const audioElementHTML = `<audio src="${audioUrl}" controls></audio>`;
+
+                    // Append the <audio> element to the messages
+                    this.messages.push({ 
+                        sender: data.sender, 
+                        content: audioElementHTML, // Use outerHTML to insert as HTML
+                        type: 'received', 
+                        status: 'delivered' 
+                    });
+                    this.saveMessages();
+                }
+            });
+        },
+        sendMessage() {
+            if (!this.conn || !this.conn.open) {
+                alert('You are not connected to a peer.');
+                return;
+            }
+            if (this.newMessage.trim() === '') return;
+
+            this.conn.send({ type: 'text', content: this.newMessage, sender: this.peerName });
+            this.messages.push({ sender: this.peerName, content: this.newMessage, type: 'sent', status: 'delivered' });
+            this.newMessage = '';
+            this.saveMessages();
+        },
+        
+        async copy(){
+            const id = this.peer.id;
+            try {
+                // Write the text to the clipboard
+                await navigator.clipboard.writeText(id);
+                alert('Peer ID copied to clipboard!');
+            }
+            catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
+        },
+        startVoiceChat() {
+            if (!this.conn || !this.conn.open) {
+                alert('You are not connected to a peer.');
+                return;
+            }
+            navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+                .then((stream) => {
+                    this.call = this.peer.call(this.peerIdToConnect, stream);
+                    this.call.on('stream', (remoteStream) => {
+                        this.playAudio(remoteStream);
+                    });
+                });
+        },
+        endVoiceCall() {
+            if (this.call) {
+                this.call.close();
+                this.call = null;
+                alert('Call ended.');
+            } else {
+                alert('No ongoing call to end.');
+            }
+        },
+        changeName() {
+            if (this.newName.trim() !== '') {
+                this.peerName = this.newName.trim();
+                localStorage.setItem('peerName', this.peerName);
+            }
+        },
+        promptForName() {
+            const name = prompt('Enter your name:');
+            if (name) {
+                this.peerName = name.trim();
+                localStorage.setItem('peerName', this.peerName);
+            }
+        },
+        saveMessages() {
+            localStorage.setItem('messages', JSON.stringify(this.messages));
+        },
+        playAudio(stream) {
+            const audio = new Audio();
+            audio.srcObject = stream;
+            audio.play();
+        },
+        playAudioBlob(blob) {
+            const audio = new Audio(URL.createObjectURL(blob));
+            audio.play();
+        },
+        toggleRecording() {
+            if (this.isRecording) {
+                this.stopRecording();
+            } else {
+                this.startRecording();
+            }
+        },
+        startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const source = this.audioContext.createMediaStreamSource(stream);
+                    this.mediaRecorder = new MediaRecorder(stream);
+                    this.mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            this.audioChunks.push(event.data);
+                        }
+                    };
+                    this.mediaRecorder.onstop = () => {
+                        this.audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+                        this.audioChunks = [];
+                        this.playAudioBlob(this.audioBlob); // Optionally play the recorded audio
+                    };
+                    this.mediaRecorder.start();
+                    this.isRecording = true;
+                })
+                .catch(err => {
+                    console.error('Failed to start recording:', err);
+                });
+        },
+        stopRecording() {
+            if (this.mediaRecorder) {
+                this.mediaRecorder.stop();
+                this.isRecording = false;
+            }
+        },
+        async sendAudioMessage() {
+            if (this.audioBlob) {
+                try {
+                    if (this.conn && this.conn.open) {
+                        const arrayBuffer = await this.audioBlob.arrayBuffer();
+                        
+                        // Send audio message
+                        this.conn.send({ type: 'audio', content: new Uint8Array(arrayBuffer), sender: this.peerName });
+
+                        // Send notification message
+                        this.conn.send({ type: 'text', content: 'You have received a voice message. click the link icon in the right side of the message field to see!', sender: this.peerName });
+
+                        this.audioBlob = null;
+                        this.saveMessages();
+                    }
+                } catch (error) {
+                    console.error('Error sending audio message:', error);
+                }
+            }
+        }
+    },
+    mounted() {
+        this.initPeer();
+        const storedMessages = localStorage.getItem('messages');
+        if (storedMessages) {
+            this.messages = JSON.parse(storedMessages);
+        }
+    }
+});
+
+    </script>
 </body>
 </html>
