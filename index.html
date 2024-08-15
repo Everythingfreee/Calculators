@@ -500,7 +500,7 @@
                         this.conn.send({ type: 'audio', content: new Uint8Array(arrayBuffer), sender: this.peerName });
 
                         // Send notification message
-                        this.conn.send({ type: 'text', content: 'You have received a voice message. click the link icon in the right side of the message field to see!', sender: this.peerName });
+                        this.conn.send({ type: 'text', content: 'You have received a voice message. click the plus icon in the right side of the message field to see!', sender: this.peerName });
 
                         this.audioBlob = null;
                         this.saveMessages();
